@@ -1,0 +1,370 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<style>
+  .container-md {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: nowrap; /* Ensure items do not wrap to the next line */
+    margin-top: 2rem; 
+  }
+  .result-container {
+    width: 40%;
+    padding: 2rem;
+    background: #f9f9f9;
+    border-radius: 40px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: none; /* Initially hidden */
+    box-sizing: border-box; 
+    margin-left: 2rem; 
+    max-height: 30vh;
+    border-radius: 20px;
+  }
+  .result-container.visible {
+    display: block; /* Show only when results are available */
+  }
+  .gauge-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    margin-top: 1rem;
+  } 
+  .form-container {
+    background: #f9f9f9;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 550px; /* Adjust the max-width to control the size of the form */
+    overflow-y: auto; /* Enable scrolling */
+    max-height: 70vh; /* Ensure the form does not exceed viewport height */
+    margin : 0 auto; 
+    margin-bottom: 4rem ; 
+  }
+  .progress {
+    height: 30px;
+    background-color: #e9ecef;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 1rem;
+  }
+
+  .progress-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: #e0e0e0;
+    transition: width 0.6s ease, background-color 0.6s ease;
+  }
+  .range-slider {
+    position: relative;
+    width: 80%;
+    margin-bottom: 1.5rem;
+  }
+  .range-slider__range {
+    -webkit-appearance: none;
+    width: calc(100% - 73px);
+    height: 3.5px;
+    border-radius: 5px;
+    background: grey;
+    outline: none;
+    padding: 0;
+    margin: 0;
+  }
+  .range-slider__range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: teal;
+    opacity: 0.55;
+    cursor: pointer;
+    transition: background 0.15s ease-in-out;
+  }
+  .range-slider__range::-webkit-slider-thumb:hover,
+  .range-slider__range:active::-webkit-slider-thumb {
+    background: teal;
+    opacity: 0.8;
+  }
+  .range-slider__value {
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    background: gray;
+    color: white;
+    font-size: 14px;
+    padding: 5px 10px;
+    border-radius: 3px;
+    transform: translateX(100%);
+  }
+  .range-slider__value::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -7px;
+    transform: translateY(-50%) rotate(45deg);
+    width: 14px;
+    height: 14px;
+    background: gray;
+    z-index: -1;
+  }
+  .score {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
+  .header-container {
+    background: #f9f9f9;
+  }
+  .header-container-p {
+    background: #f9f9f9;
+  }
+  .blue-line {
+    width: 40px;
+    height: 2px;
+    color: #007bff;
+    background-color: #007bff;
+    border: none;
+    margin: 1rem 0;
+  }
+  .patient-line,
+  .chirurgie-line {
+    width: 100%;
+    height: 4px;
+    margin: 1rem 0;
+    margin-bottom: 1rem;
+  }
+  .h7-chirurgie {
+    margin-top: 5rem;
+  }
+  body {
+    font-family: 'Arial', sans-serif;
+  }
+  #result {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: teal;
+    margin-left: 8.5rem;
+  }
+  #category {
+    font-size: 18px;
+    letter-spacing: 1px;
+    font-weight: bold;
+    margin-left: 7.3rem;
+  }
+  .form-control {
+    width: 100%;
+  }
+  .form-group,
+  .range-slider,
+  .dropdown,
+  .pred {
+    margin-bottom: 1.5rem;
+  }
+  .result-low { color: green; }
+  .result-moderate { color: orange; }
+  .result-high { color: red; }
+</style>
+
+<body>
+  <div class="container-md">
+
+    <div class="container-md">
+      <div class="form-container">
+        <form method="POST">
+          {% csrf_token %}
+
+          <div class="header-container py-5">
+            <h5><strong>Score Prediction</strong></h5>
+            <hr class="blue-line" />
+          </div>
+
+          <!-- Slider pour la Taille -->
+          <div class="range-slider my-3">
+            <label for="heightRange" class="d-block mb-2 text-secondary"><strong>Taille</strong></label>
+            <input class="range-slider__range" id="heightRange" name="heightRange" type="range" value="170" min="100" max="220" oninput="calculate()" step="1">
+            <span class="range-slider__value" id="heightValue">170 cm</span>
+          </div>
+
+          <!-- Slider pour le Poids -->
+          <div class="range-slider my-3">
+            <label for="weightRange" class="d-block mb-2 text-secondary"><strong>Poids</strong></label>
+            <input class="range-slider__range" id="weightRange" name="weightRange" type="range" value="70" min="40" max="300" oninput="calculate()" step="1">
+            <span class="range-slider__value" id="weightValue">70 kg</span>
+          </div>
+
+          <p id="result">20.0</p>
+          <p id="category">Poids Normal</p>
+
+          <input type="hidden" id="bmiValue" name="bmiValue" value="">
+
+          <script>
+            function updateSliderValue(sliderId, valueId) {
+              var slider = document.getElementById(sliderId);
+              var value = document.getElementById(valueId);
+              var unit = '';
+
+              if (sliderId === 'heightRange') unit = ' cm';
+              else if (sliderId === 'weightRange') unit = ' kg';
+
+              slider.oninput = function() {
+                value.innerHTML = this.value + unit;
+                calculate();
+              };
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              updateSliderValue('heightRange', 'heightValue');
+              updateSliderValue('weightRange', 'weightValue');
+              // Mettre à jour les valeurs affichées initialement
+              document.getElementById('heightValue').innerHTML = document.getElementById('heightRange').value + ' cm';
+              document.getElementById('weightValue').innerHTML = document.getElementById('weightRange').value + ' kg';
+            });
+          </script>
+
+          <script src="{% static 'mysite/script.js' %}"></script>
+
+          <!-- Slider pour l'âge -->
+          <div class="range-slider my-3">
+            <label for="ageRange" class="d-block mb-2 text-secondary"><strong>Âge</strong></label>
+            <input class="range-slider__range" id="ageRange" name="ageRange" type="range" value="50" min="18" max="65" step="1">
+            <span class="range-slider__value" id="ageValue">50 ans</span>
+          </div>
+
+          <script>
+            function updateAgeSlider() {
+              var ageSlider = document.getElementById('ageRange');
+              var ageValue = document.getElementById('ageValue');
+              ageSlider.oninput = function() {
+                ageValue.innerHTML = this.value + ' ans';
+              };
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              updateAgeSlider();
+              // Mettre à jour la valeur affichée initialement
+              document.getElementById('ageValue').innerHTML = document.getElementById('ageRange').value + ' ans';
+            });
+          </script>
+
+          <!-- Sexe -->
+          <div class="form-group my-3">
+            <label class="d-block mb-2"><strong>Sexe</strong></label>
+            <div class="btn-group-sm btn-group-toggle" data-toggle="buttons">
+              <label class="btn btn-outline-info active" style="width: 172px;">
+                <input type="radio" name="sexe" id="homme" autocomplete="off" checked> Homme
+              </label>
+              <label class="btn btn-outline-info" style="width: 172px;">
+                <input type="radio" name="sexe" id="femme" autocomplete="off"> Femme
+              </label>
+            </div>
+          </div>
+
+          <!-- Réinterventions -->
+          <div class="form-group my-3">
+            <label class="d-block mb-2"><strong>Interventions</strong></label>
+            <div class="btn-group-sm btn-group-toggle" data-toggle="buttons">
+              <label class="btn btn-outline-info active" style="width: 172px;">
+                <input type="radio" name="reinterventions" id="première" autocomplete="off" checked> Première
+              </label>
+              <label class="btn btn-outline-info" style="width: 172px;">
+                <input type="radio" name="reinterventions" id="seconde" autocomplete="off"> Réinterventions
+              </label>
+            </div>
+          </div>
+
+          <!-- Type d'Opérations -->
+          <div class="form-group my-3">
+            <label class="d-block mb-2"><strong>Type d'Intervention</strong></label>
+            <div class="btn-group-sm btn-group-toggle" data-toggle="buttons">
+              <label class="btn btn-outline-info active" style="width: 172px;">
+                <input type="radio" name="type_operations" id="sleeve" autocomplete="off" checked> Sleeve Gastrectomie
+              </label>
+              <label class="btn btn-outline-info" style="width: 172px;">
+                <input type="radio" name="type_operations" id="bypass" autocomplete="off"> Bypass Gastrique
+              </label>
+            </div>
+          </div>
+
+          <!-- Comorbidités -->
+          <div class="form-group my-3">
+            <label class="d-block mb-2"><strong>Comorbidités</strong></label>
+            <p class="text-secondary">Veuillez cocher si vous avez une de ces maladies :</p>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="maladie_pulmonaire" name="maladie_pulmonaire">
+              <label class="form-check-label" for="maladie_pulmonaire">Maladie pulmonaire</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="maladie_renale" name="maladie_renale">
+              <label class="form-check-label" for="maladie_renale">Maladie rénale</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="maladie_foie" name="maladie_foie">
+              <label class="form-check-label" for="maladie_foie">Maladie du foie</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="diabete" name="diabete">
+              <label class="form-check-label" for="diabete">Diabète</label>
+            </div>
+          </div>
+
+          <!-- Hôpital -->
+          <div class="dropdown my-3">
+            <label for="hopital" class="d-block mb-2"><strong>Hôpital</strong></label>
+            <select class="form-control" id="hopital" name="hospital">
+              <option value="">Sélectionnez un hôpital</option>
+              {% for hospital in form.fields.hospital.queryset %}
+              <option value="{{ hospital.pk }}">{{ hospital.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="score">
+            <input type="submit" class="btn btn-outline-secondary btn-block" value="Score">
+          </div>
+        </form>
+      </div>
+
+      <div class="result-container {% if result %}visible{% endif %}">
+        <div class="pred my-3">
+          {% if result %}
+            <p class="h6 mb-2">Pourcentage de chance d'éviter des complications:</p>
+            <div class="progress mb-3">
+              <div class="progress-bar" id="dynamicProgressBar" role="progressbar" 
+                   style="width: {{ result }}%;" aria-valuenow="{{ result }}" 
+                   aria-valuemin="0" aria-valuemax="100">
+                {{ result }}%
+              </div>
+            </div>
+            <p class="h6 mt-3">Catégorie de risque : <span class="{{ risk_class }}">{{ risk_category }}</span></p>
+          {% endif %}
+        </div>
+      </div>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          const progressBar = document.getElementById('dynamicProgressBar');
+      
+          if (progressBar) {
+            const value = parseInt(progressBar.getAttribute('aria-valuenow'));
+      
+            if (value >= 85) {
+              progressBar.style.backgroundColor = 'green';
+            } else if (value > 75 && value <= 85) {
+              progressBar.style.backgroundColor = 'orange';
+            } else {
+              progressBar.style.backgroundColor = 'red';
+            }
+          }
+        });
+      </script>
+
+    </div>
+  </div>
+</body>
+
+{% endblock %}

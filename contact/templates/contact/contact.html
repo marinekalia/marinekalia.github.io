@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    body{
+      'Arial' , sans serif; 
+    }
+    .blue-line { 
+      width: 40px; /* Width of the blue line */
+      height: 2px; /* Height of the blue line */
+      color: #007bff;
+      background-color: #007bff;
+      border: none;
+      margin: 1rem 0;
+    }
+</style>
+
+<body>
+
+<div class="container-md">
+
+    <div class="header-container py-5">
+	    <h5><strong>Contactez-nous</h5></strong>
+	    <hr class="blue-line"></hr> 
+	    <p>Nous vous invitons à remplir le formulaire ci-dessous. Nous vous ferons parvenir une réponse dans les meilleurs délais.</p>
+    </div> 
+
+    <form method="post">
+        {% csrf_token %}
+        <!-- Motif -->
+        <div class="form-group">
+            <label>{{ form.motif.label }}</label>
+            <div>
+                {% for choice in form.motif %}
+                    <div class="form-check">
+                        {{ choice.tag }}
+                        <label class="form-check-label" for="{{ choice.id_for_label }}">{{ choice.choice_label }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+       <!-- Nom -->
+        <div class="form-group">
+            <label for="nameInput">Votre nom</label>
+            <input type="text" class="form-control" id="nameInput" name="name" placeholder="Par exemple : Jacques Martin" required>
+        </div>
+
+       <!-- Email -->
+       
+	<div class="form-group">
+            <label for="emailInput">Votre e-mail</label>
+            <input type="email" class="form-control" id="emailInput" name="email" placeholder="exemple@domaine.com" required>
+        </div>
+
+       <!-- Sujet -->
+        <div class="form-group">
+            <label for="subjectInput">Sujet</label>
+            <input type="text" class="form-control" id="subjectInput" name="subject" placeholder="Entrez le sujet de votre message" required>
+        </div>
+
+       <!-- Message -->
+        <div class="form-group">
+            <label for="messageTextarea">Votre message</label>
+            <textarea class="form-control" id="messageTextarea" name="message" rows="5" placeholder="Tapez votre message ici" required></textarea>
+        </div>
+
+
+        <!-- Bouton de soumission -->
+        <button type="submit" class="btn btn-primary mb-4">Envoyer le message</button>
+    </form>
+</div>
+
+</body> 
+
+{% endblock %}
+

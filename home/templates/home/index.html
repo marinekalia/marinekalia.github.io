@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+
+
+<style>
+    body {
+      font-family: 'Arial', sans-serif;
+    }
+    .header-container {
+      background: #ffffff;
+    }
+
+    .blue-line {
+      width: 40px; /* Width of the blue line */
+      height: 2px; /* Height of the blue line */
+      color: #007bff;
+      background-color: #007bff;
+      border: none;
+      margin : 1rem 0;   
+    }
+</style>
+
+
+<body>
+
+  <div class="container-md">
+
+         <div class="header-container py-5">
+	      <h5><strong>Statistiques et visualisations de données de Chirurgie Bariatrique</strong></h5>
+	      <hr class="blue-line">
+	      <p class="h7"><strong>BARIA</strong>-MAP est un outil permettant de prédire la probabilité qu'un patient ait une complication post-opératoire.</p>
+	 </div> 
+ 
+	 <div class="card-columns">
+              <div class="card border border-white shadow">
+	         <div class="card-body text-center">
+	             <p class="card-text"><strong>602 472</strong></p>
+		     <p class="card-text"><small class="text-muted">Nombre d'interventions depuis 30 ans.</small></p>
+		 </div>
+	      </div>
+
+	      <div class="card border border-white shadow">
+                 <div class="card-body text-center"> 
+                     <p class="card-text"><strong>27 324</strong></p>
+                     <p class="card-text"><small class="text-muted">Nombre d'interventions depuis le début de l'année.</small></p>
+                 </div>
+              </div>
+
+	      <div class="card border border-white shadow">
+                 <div class="card-body text-center">
+                     <p class="card-text"><strong>88 %</strong></p>
+                     <p class="card-text"><small class="text-muted">Proportion des séjours hospitalier sans problèmes.</small></p>
+                 </div>
+              </div>
+ 
+	 </div>
+
+
+	  <div class="card mb-4 border border-white shadow">
+	      <div class="card-body">
+		 <img class="card-img" src= "{% static 'images/trends_bariatrique.png' %}" alt="Card image">
+		 <p class="card-text"><small class="text-muted"></small></p>
+	      </div>
+	  </div>
+  </div>
+
+</body> 
+
+
+
+
+{% endblock %}
+

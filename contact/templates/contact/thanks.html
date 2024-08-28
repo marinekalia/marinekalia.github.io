@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+        body {
+            font-family: 'Arial', sans-serif;
+        }
+        main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        section {
+            max-width: 600px;
+        }
+        h2, h3 {
+            margin-bottom: 20px;
+        }
+        p {
+            margin-bottom: 20px;
+        }
+    </style>
+    <title>Merci pour votre message</title>
+</head>
+<body>
+    <main class="container">
+        <div class="grid">
+            <section>
+                <hgroup>
+                    <h2>Merci de nous avoir contacté !</h2>
+                    <h3>Votre message a été bien reçu.</h3>
+                </hgroup>
+                <p>Nous vous remercions pour votre message. Notre équipe va traiter votre demande et vous répondra dans les plus brefs délais. En attendant, vous pouvez retourner à la page d'accueil ou continuer votre visite sur notre site.</p>
+            </section>
+        </div>
+    </main>
+</body>
+
+{% endblock %} 
+
